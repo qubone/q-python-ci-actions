@@ -1,6 +1,6 @@
 name: CI
 
-description: Continuous Integration Workflow for QSleeperFantasyBot
+description: Continuous Integration Workflow python projects using UV.
 
 permissions:
   contents: write
