@@ -7,11 +7,15 @@ permissions:
 
 on:
   workflow_call:
+    inputs:
+      github-token:
+        description: "GitHub token for tagging"
+        required: true
+        type: secret
   workflow_dispatch:
 
 env:
   PYTHON_VERSION: "3.12"
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   lint:
@@ -83,7 +87,7 @@ jobs:
         id: bump
         uses: ./.github/actions/bump-patch-and-tag
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ inputs.github-token }}
           dry-run: ${{ github.event_name == 'pull_request' }}
 
       - name: Create Release Notes
