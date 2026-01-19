@@ -7,11 +7,10 @@ permissions:
 
 on:
   workflow_call:
-    inputs:
+    secrets:
       github-token:
-        description: "GitHub token for tagging"
+        description: "GitHub token for tagging and releases"
         required: true
-        type: secret
   workflow_dispatch:
 
 env:
@@ -87,7 +86,7 @@ jobs:
         id: bump
         uses: ./.github/actions/bump-patch-and-tag
         with:
-          github-token: ${{ inputs.github-token }}
+          github-token: ${{ secrets.github-token }}
           dry-run: ${{ github.event_name == 'pull_request' }}
 
       - name: Create Release Notes
