@@ -1,11 +1,21 @@
 name: Build Package
 description: Build the Python package using uv
+
+inputs:
+  import-module:
+    description: "Python module name to test importing"
+    required: true
 runs:
   using: composite
   steps:
     - run: uv build
       name: Build Package
       shell: bash
-    - run: uv run python -c "import qsleeperfantasybot; print('Package imported successfully')"
+    - run: |
+        uv run python - <<EOF
+        import importlib
+        importlib.import_module("${{ inputs.import-module }}")
+        print("Package imported successfully")
+        EOF
       name: Test import package
       shell: bash
