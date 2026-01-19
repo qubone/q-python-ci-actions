@@ -7,6 +7,11 @@ permissions:
 
 on:
   workflow_call:
+    inputs:
+      import-module:
+        description: "Python module name to import-test after build"
+        required: true
+        type: string
     secrets:
       github-token:
         description: "GitHub token for tagging and releases"
@@ -70,6 +75,8 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Run Build
         uses: qubone/q-python-ci-actions/.github/actions/run-build@main
+        with:
+          import-module: ${{ inputs.import-module }}
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: build
