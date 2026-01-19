@@ -1,7 +1,14 @@
 name: Run Tests
 description: Run pytest
+
+inputs:
+  skip-coverage:
+    description: 'Skip coverage reporting'
+    required: false
+    default: false
+    type: boolean
 runs:
   using: composite
   steps:
-    - run: uv run pytest --cov=src
+    - run: uv run pytest ${{ inputs.skip-coverage == false && '--cov=src' || '' }}
       shell: bash

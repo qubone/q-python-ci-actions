@@ -12,8 +12,13 @@ on:
         description: "Python module name to import-test after build"
         required: true
         type: string
+      skip-coverage:
+        description: "Skip coverage reporting"
+        required: false
+        type: boolean
+        default: false
       skip-tests:
-        description: "Skip test execution"
+        description: "Skip tests execution"
         required: false
         type: boolean
         default: false
@@ -51,11 +56,11 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           dependency-groups: "typecheck"
+          skip-tests: ${{ inputs.skip-tests }}
       - name: Run Type Check
         uses: qubone/q-python-ci-actions/.github/actions/run-typecheck@main
 
   test:
-    if: ${{ inputs.skip-tests != true }}
     needs: typecheck
     runs-on: ubuntu-latest
     steps:
@@ -66,6 +71,7 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           dependency-groups: "test"
+          skip-coverage: ${{ inputs.skip-coverage }}
       - name: Run Tests
         uses: qubone/q-python-ci-actions/.github/actions/run-tests@main
 

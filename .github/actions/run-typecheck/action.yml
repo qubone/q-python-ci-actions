@@ -1,7 +1,13 @@
 name: Run Typecheck
 description: Run mypy
+inputs:
+  skip-tests:
+    description: "Skip test execution"
+    required: false
+    default: false
+    type: boolean
 runs:
   using: composite
   steps:
-    - run: uv run mypy src
+    - run: uv run mypy src ${{ inputs.skip-tests == false && 'src' || '' }}
       shell: bash
