@@ -8,20 +8,20 @@ permissions:
 on:
   workflow_call:
     inputs:
+      python-version:
+        description: "Python version to use"
+        required: false
+        type: string
+        default: "3.12"
       import-module:
         description: "Python module name to import-test after build"
-        required: true
+        required: false
         type: string
-      skip-coverage:
-        description: "Skip coverage reporting"
+      coverage-threshold:
+        description: 'Minimum coverage % required to pass (0 = do not enforce)'
         required: false
-        type: boolean
-        default: false
-      skip-tests:
-        description: "Skip tests execution"
-        required: false
-        type: boolean
-        default: false
+        type: string
+        default: "0"
     secrets:
       github-token:
         description: "GitHub token for tagging and releases"
@@ -29,7 +29,10 @@ on:
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: "3.12"
+  PYTHON_VERSION: ${{ inputs.python-version }}
+  IMPORT_MODULE: ${{ inputs.import-module }}
+  COVERAGE_THRESHOLD: ${{ inputs.coverage-threshold }}
+  GITHUB_TOKEN: ${{ secrets.github-token }}
 
 jobs:
   lint:
@@ -56,7 +59,6 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           dependency-groups: "typecheck"
-          skip-tests: ${{ inputs.skip-tests }}
       - name: Run Type Check
         uses: qubone/q-python-ci-actions/.github/actions/run-typecheck@main
 
@@ -71,7 +73,6 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           dependency-groups: "test"
-          skip-coverage: ${{ inputs.skip-coverage }}
       - name: Run Tests
         uses: qubone/q-python-ci-actions/.github/actions/run-tests@main
 
@@ -88,7 +89,7 @@ jobs:
       - name: Run Build
         uses: qubone/q-python-ci-actions/.github/actions/run-build@main
         with:
-          import-module: ${{ inputs.import-module }}
+          import-module: ${{ env.IMPORT_MODULE }}
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: build
@@ -104,7 +105,7 @@ jobs:
         id: bump
         uses: qubone/q-python-ci-actions/.github/actions/bump-patch-and-tag@main
         with:
-          github-token: ${{ secrets.github-token }}
+          github-token: ${{ env.GITHUB_TOKEN }}
           dry-run: ${{ github.event_name == 'pull_request' }}
 
       - name: Create Release Notes

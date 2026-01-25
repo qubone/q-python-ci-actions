@@ -5,11 +5,25 @@ inputs:
   import-module:
     description: "Python module name to test importing"
     required: true
+    default: ""
+
 runs:
   using: composite
   steps:
-    - run: uv build
-      name: Build Package
+
+    - name: Check if this is a package repo
+      id: check
+      run: |
+        if [ -n "${{ inputs.import-module }}" ]; then
+          echo "is_package=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "is_package=false" >> "$GITHUB_OUTPUT"
+        fi
+      shell: bash
+
+    - name: Build Package
+      if: ${{ steps.check.outputs.is_package == 'true' }}
+      run: uv build
       shell: bash
     - run: |
         uv run python - <<EOF
@@ -18,4 +32,5 @@ runs:
         print("Package imported successfully")
         EOF
       name: Test import package
+      if: ${{ steps.check.outputs.is_package == 'true' }}
       shell: bash

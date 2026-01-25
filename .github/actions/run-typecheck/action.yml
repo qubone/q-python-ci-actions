@@ -1,13 +1,23 @@
-name: Run Typecheck
+name: Run Type Check
 description: Run mypy
-inputs:
-  skip-tests:
-    description: "Skip test execution"
-    required: false
-    default: false
-    type: boolean
+
 runs:
   using: composite
   steps:
-    - run: uv run mypy src ${{ inputs.skip-tests == false && 'src' || '' }}
+    - name: Detect folders to typecheck
+      id: paths
+      run: |
+        PATHS="src"
+
+        if [ -d "tests" ]; then
+          PATHS="$PATHS tests"
+        fi
+
+        echo "paths=$PATHS" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Run mypy
+      run: |
+        echo "Type checking: ${{ steps.paths.outputs.paths }}"
+        uv run mypy ${{ steps.paths.outputs.paths }}
       shell: bash

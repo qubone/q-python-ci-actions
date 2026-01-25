@@ -1,7 +1,9 @@
 name: Run Lint
 description: Lint code using Ruff
+
 runs:
   using: composite
   steps:
-    - run: uv run ruff check .
+    - name: Lint Code
+      run: uv run ruff check .
       shell: bash
